@@ -1,0 +1,8 @@
+{
+  "name": "confident-me-posture-and-diet-planner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A private meal and posture planner with realistic weight goals.",
+  "license": "MIT",
+  "scripts": { "test": "node --test tests/logic.test.js" }
+}

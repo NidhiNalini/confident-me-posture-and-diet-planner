@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--CSP-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<!--/CSP-->
+<title>Confident Me - Posture and Diet Planner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A private meal and posture planner with realistic weight goals.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <div>
+      <p class="brand">Confident Me - Posture and Diet Planner</p>
+      <h1>Eat for a goal you can keep, and stand a little taller.</h1>
+    </div>
+    <nav aria-label="Sections" class="jump">
+      <a href="#goal">Goal</a><a href="#meals">Meals</a><a href="#foods">Foods</a><a href="#posture">Posture</a>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <form id="details" class="details" autocomplete="off" novalidate>
+      <p id="example-note" class="example-note">These are example values. Replace them with your own.</p>
+
+      <fieldset>
+        <legend>About you</legend>
+        <label class="field wide" for="units">Units
+          <select id="units"><option value="imperial">lb, feet and inches</option><option value="metric">kg and cm</option></select>
+        </label>
+        <div class="row" id="imperial-height">
+          <label class="field" for="ft">Height (ft)<input id="ft" type="number" inputmode="numeric" min="3" max="7"></label>
+          <label class="field" for="inch">Height (in)<input id="inch" type="number" inputmode="numeric" min="0" max="11"></label>
+        </div>
+        <label class="field wide" id="metric-height" for="cm">Height (cm)<input id="cm" type="number" inputmode="decimal" min="120" max="220"></label>
+        <div class="row">
+          <label class="field" for="weight"><span>Current weight (<span class="unit-w">lb</span>)</span><input id="weight" type="number" inputmode="decimal" step="0.1"></label>
+          <label class="field" for="goal"><span>Desired weight (<span class="unit-w">lb</span>)</span><input id="goal" type="number" inputmode="decimal" step="0.1"></label>
+        </div>
+        <div class="row">
+          <label class="field" for="days">Days to goal<input id="days" type="number" inputmode="numeric" min="1" max="730"></label>
+          <label class="field" for="age">Age<input id="age" type="number" inputmode="numeric" min="10" max="110"></label>
+        </div>
+        <label class="field wide" for="sex">Calorie formula
+          <select id="sex"><option value="female">Female formula</option><option value="male">Male formula</option></select>
+        </label>
+        <label class="field wide" for="activity">Usual day
+          <select id="activity">
+            <option value="sitting">Mostly sitting</option>
+            <option value="light">Some walking</option>
+            <option value="moderate">On my feet most of the day</option>
+          </select>
+        </label>
+        <label class="check" for="clinician"><input id="clinician" type="checkbox">
+          <span>I am pregnant or breastfeeding, have a medical condition affecting food, or have a history of an eating disorder.</span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your eating day</legend>
+        <label class="field wide" for="mealCount">Meals per day
+          <select id="mealCount"><option value="2">2 meals</option><option value="3">3 meals</option><option value="4">4 meals</option><option value="5">5 meals</option></select>
+        </label>
+        <div class="row">
+          <label class="field" for="first">First meal<input id="first" type="time"></label>
+          <label class="field" for="last">Last meal<input id="last" type="time"></label>
+        </div>
+        <label class="check" for="snackOn"><input id="snackOn" type="checkbox"><span>Include a snack</span></label>
+        <div class="row" id="snack-fields">
+          <label class="field" for="snackTime">Snack time<input id="snackTime" type="time"></label>
+          <label class="field" for="snackLimit">Snack limit (kcal)<input id="snackLimit" type="number" min="50" max="300" step="10"></label>
+        </div>
+        <label class="check" for="sugarFree"><input id="sugarFree" type="checkbox"><span>No added sugar <small>Whole fruit stays in.</small></span></label>
+        <label class="check" for="vegetarian"><input id="vegetarian" type="checkbox"><span>Vegetarian meals</span></label>
+      </fieldset>
+
+      <ul id="errors" class="errors" role="alert" hidden></ul>
+      <div class="data-note">
+        <p>Your entries stay in this browser and are never sent anywhere.</p>
+        <button type="button" id="delete-data" class="text-button">Delete my data</button>
+        <p id="delete-status" role="status"></p>
+      </div>
+    </form>
+
+    <main class="results">
+      <section id="goal" aria-labelledby="goal-h">
+        <h2 id="goal-h" class="visually-hidden">Goal check</h2>
+        <div id="verdict"></div>
+        <div id="bmi-panel"></div>
+      </section>
+
+      <section id="meals" aria-labelledby="meals-h">
+        <div class="section-head">
+          <h2 id="meals-h">Today's meals</h2>
+          <button type="button" id="next-day" class="button">Show other meals</button>
+        </div>
+        <div id="menu"></div>
+      </section>
+
+      <section id="foods" aria-labelledby="foods-h">
+        <h2 id="foods-h">Is this food good for my plan?</h2>
+        <label class="field search" for="food-search">Search for a food you like
+          <input id="food-search" type="search" maxlength="40" placeholder="For example, yogurt">
+        </label>
+        <div id="food-results" class="chips" aria-live="polite"></div>
+        <div id="food-card"></div>
+        <h3>Foods I want in my meals</h3>
+        <div id="favourites" class="chips"></div>
+      </section>
+
+      <section id="posture" aria-labelledby="posture-h">
+        <div class="section-head">
+          <h2 id="posture-h">Five minutes for your posture</h2>
+          <p id="posture-count" class="count"></p>
+        </div>
+        <div class="posture-grid">
+          <figure class="plumb">
+            <svg viewBox="0 0 160 300" role="img" aria-labelledby="plumb-title">
+              <title id="plumb-title">Side view of a person standing with ear, shoulder, hip, knee and ankle along a straight vertical line</title>
+              <line x1="80" y1="8" x2="80" y2="290" class="plumb-line"></line>
+              <path d="M80 62 C70 90 71 120 77 150 C78 170 80 195 80 220 C80 240 80 258 80 278" class="body-line"></path>
+              <circle cx="84" cy="38" r="24" class="head"></circle>
+              <path d="M80 278 H108" class="body-line"></path>
+              <g class="dots">
+                <circle cx="80" cy="38" r="4.5"></circle><circle cx="80" cy="74" r="4.5"></circle>
+                <circle cx="80" cy="152" r="4.5"></circle><circle cx="80" cy="218" r="4.5"></circle><circle cx="80" cy="274" r="4.5"></circle>
+              </g>
+              <g class="plumb-labels">
+                <text x="54" y="42" text-anchor="end">Ear</text><text x="72" y="78" text-anchor="end">Shoulder</text>
+                <text x="72" y="156" text-anchor="end">Hip</text><text x="72" y="222" text-anchor="end">Knee</text><text x="72" y="278" text-anchor="end">Ankle</text>
+              </g>
+            </svg>
+            <figcaption>Posture check: imagine a line through these five points. Stand tall, and relax your shoulders and jaw.</figcaption>
+          </figure>
+          <div>
+            <ul id="moves" class="moves"></ul>
+            <p class="fine">Move slowly and within a comfortable range. Stop if you feel pain, numbness or dizziness. These moves may improve awareness and comfort, but results vary. If pain continues, speak with a physiotherapist or doctor.</p>
+            <label class="field reminder" for="reminder">Remind me to check my posture while this page is open
+              <select id="reminder">
+                <option value="0">Off</option><option value="30">Every 30 minutes</option><option value="45">Every 45 minutes</option>
+                <option value="60">Every hour</option><option value="90">Every 90 minutes</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <p>This planner gives general information and estimates. It is not medical advice. Nutrition values are approximate, so check labels for packaged foods. Speak with a doctor or registered dietitian before making major changes to your diet.</p>
+      </footer>
+    </main>
+  </div>
+</div>
+<div id="reminder-banner" class="reminder-banner" role="status" hidden>
+  <span>Posture check: ears over shoulders, shoulders relaxed, feet flat.</span>
+  <button type="button" id="reminder-close" class="button">Done</button>
+</div>
+<script src="js/foods.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
